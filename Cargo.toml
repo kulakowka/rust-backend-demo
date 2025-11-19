@@ -22,8 +22,7 @@ async-graphql-axum = "7.0"
 async-trait = "0.1"
 utoipa = { version = "5.4", features = ["axum_extras", "uuid", "chrono"] }
 utoipa-swagger-ui = { version = "9.0", features = ["axum"] }
-# Gemini AI dependencies
-google-generative-ai-rs = "0.3"
+# Gemini AI dependencies - using direct REST API
 reqwest = { version = "0.12", features = ["json", "stream"] }
 futures = "0.3"
 tokio-stream = "0.1"

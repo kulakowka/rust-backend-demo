@@ -8,6 +8,7 @@ pub struct ChatMessage {
     pub content: String,
 }
 
+#[allow(dead_code)]
 impl ChatMessage {
     pub fn user(content: impl Into<String>) -> Self {
         Self {
@@ -24,11 +25,13 @@ impl ChatMessage {
     }
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChatHistory {
     pub messages: Vec<ChatMessage>,
 }
 
+#[allow(dead_code)]
 impl ChatHistory {
     pub fn new() -> Self {
         Self {

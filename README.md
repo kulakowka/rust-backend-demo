@@ -72,9 +72,13 @@ src/
    SERVER_HOST=127.0.0.1
    SERVER_PORT=3000
    GEMINI_API_KEY=your_gemini_api_key_here
+   # Optional: specify Gemini model (defaults to gemini-2.0-flash-exp)
+   # GEMINI_MODEL=gemini-3-pro
    ```
 
    Get your Gemini API key from [Google AI Studio](https://makersuite.google.com/app/apikey).
+   
+   **Supported Models**: gemini-2.0-flash-exp, gemini-3-pro, gemini-pro, and other Gemini models.
 
 3. **Start PostgreSQL**
    ```bash

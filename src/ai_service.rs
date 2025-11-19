@@ -2,7 +2,6 @@ use std::sync::Arc;
 use validator::Validate;
 
 use crate::{
-    ai_model::ChatMessage,
     ai_repository::AIRepository,
     dto::{ChatRequest, ChatResponse, GenerateRequest, GenerateResponse},
     error::AppError,

@@ -5,7 +5,7 @@
 echo "=== Testing Gemini AI Integration ==="
 echo ""
 
-BASE_URL="http://127.0.0.1:3000"
+BASE_URL="http://127.0.0.1:3001"
 
 echo "1. Testing /ai/chat endpoint..."
 curl -X POST "$BASE_URL/ai/chat" \

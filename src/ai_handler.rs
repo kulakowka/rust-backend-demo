@@ -1,7 +1,6 @@
 use axum::{
     extract::State,
-    http::StatusCode,
-    response::{sse::Event, IntoResponse, Response, Sse},
+    response::{sse::Event, Sse},
     Json,
 };
 use futures::stream::{self, Stream};
