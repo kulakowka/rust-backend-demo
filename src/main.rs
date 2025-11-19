@@ -1,3 +1,7 @@
+mod ai_handler;
+mod ai_model;
+mod ai_repository;
+mod ai_service;
 mod config;
 mod dto;
 mod error;
@@ -7,6 +11,7 @@ mod repository;
 mod route;
 mod schema;
 mod service;
+mod state;
 
 use sqlx::postgres::PgPoolOptions;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -32,6 +37,9 @@ async fn main() -> anyhow::Result<()> {
     use std::sync::Arc;
     use crate::repository::PostgresUserRepository;
     use crate::service::UserService;
+    use crate::ai_repository::GeminiRepository;
+    use crate::ai_service::AIService;
+    use crate::state::AppState;
 
     tracing::info!("Running migrations...");
     sqlx::migrate!("./migrations")
@@ -39,10 +47,15 @@ async fn main() -> anyhow::Result<()> {
         .await
         .expect("Failed to run migrations");
 
-    let repository = Arc::new(PostgresUserRepository::new(pool));
-    let service = UserService::new(repository);
+    let user_repository = Arc::new(PostgresUserRepository::new(pool));
+    let user_service = UserService::new(user_repository);
 
-    let app = route::create_router(service);
+    tracing::info!("Initializing Gemini AI client...");
+    let ai_repository = Arc::new(GeminiRepository::new(config.gemini_api_key.clone()));
+    let ai_service = AIService::new(ai_repository);
+
+    let state = AppState::new(user_service, ai_service);
+    let app = route::create_router(state);
 
     let addr_str = format!("{}:{}", config.server_host, config.server_port);
     let listener = tokio::net::TcpListener::bind(&addr_str).await?;

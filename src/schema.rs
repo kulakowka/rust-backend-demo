@@ -3,7 +3,8 @@ use uuid::Uuid;
 use validator::Validate;
 
 use crate::{
-    dto::{CreateUserRequest, UpdateUserRequest},
+    ai_service::AIService,
+    dto::{ChatRequest, ChatResponse, CreateUserRequest, GenerateRequest, GenerateResponse, UpdateUserRequest},
     model::User,
     service::UserService,
 };
@@ -79,6 +80,44 @@ impl MutationRoot {
             Err(crate::error::AppError::NotFound) => Ok(false),
             Err(e) => Err(async_graphql::Error::new(e.to_string())),
         }
+    }
+
+    /// Chat with AI
+    async fn chat(
+        &self,
+        ctx: &Context<'_>,
+        input: ChatRequest,
+    ) -> async_graphql::Result<ChatResponse> {
+        if let Err(e) = input.validate() {
+            return Err(async_graphql::Error::new(e.to_string()));
+        }
+
+        let service = ctx.data::<AIService>()?;
+        let response = service
+            .chat(input)
+            .await
+            .map_err(|e| async_graphql::Error::new(e.to_string()))?;
+
+        Ok(response)
+    }
+
+    /// Generate text from prompt
+    async fn generate(
+        &self,
+        ctx: &Context<'_>,
+        input: GenerateRequest,
+    ) -> async_graphql::Result<GenerateResponse> {
+        if let Err(e) = input.validate() {
+            return Err(async_graphql::Error::new(e.to_string()));
+        }
+
+        let service = ctx.data::<AIService>()?;
+        let response = service
+            .generate(input)
+            .await
+            .map_err(|e| async_graphql::Error::new(e.to_string()))?;
+
+        Ok(response)
     }
 }
 

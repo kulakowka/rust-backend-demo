@@ -8,6 +8,7 @@ pub struct Config {
     pub server_host: String,
     pub server_port: u16,
     pub rust_log: String,
+    pub gemini_api_key: String,
 }
 
 impl Config {
@@ -21,12 +22,14 @@ impl Config {
             .parse::<u16>()
             .expect("SERVER_PORT must be a valid u16");
         let rust_log = env::var("RUST_LOG").unwrap_or_else(|_| "info".to_string());
+        let gemini_api_key = env::var("GEMINI_API_KEY").expect("GEMINI_API_KEY must be set");
 
         Config {
             database_url,
             server_host,
             server_port,
             rust_log,
+            gemini_api_key,
         }
     }
 }

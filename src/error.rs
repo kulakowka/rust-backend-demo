@@ -14,6 +14,8 @@ pub enum AppError {
     Validation(String),
     #[error("User not found")]
     NotFound,
+    #[error("External service error: {0}")]
+    ExternalService(String),
     #[error("Internal server error")]
     Internal(#[from] anyhow::Error),
 }
@@ -27,6 +29,10 @@ impl IntoResponse for AppError {
             }
             AppError::Validation(msg) => (StatusCode::BAD_REQUEST, msg),
             AppError::NotFound => (StatusCode::NOT_FOUND, "Resource not found".to_string()),
+            AppError::ExternalService(msg) => {
+                tracing::error!("External service error: {}", msg);
+                (StatusCode::BAD_GATEWAY, msg)
+            }
             AppError::Internal(e) => {
                 tracing::error!("Internal error: {:?}", e);
                 (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error".to_string())

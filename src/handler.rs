@@ -8,7 +8,7 @@ use validator::Validate;
 use crate::{
     dto::{CreateUserRequest, UpdateUserRequest, UserResponse},
     error::AppError,
-    service::UserService,
+    state::AppState,
 };
 
 #[utoipa::path(
@@ -20,9 +20,9 @@ use crate::{
     )
 )]
 pub async fn get_users(
-    State(service): State<UserService>,
+    State(state): State<AppState>,
 ) -> Result<Json<Vec<UserResponse>>, AppError> {
-    let users = service.get_users().await?;
+    let users = state.user_service.get_users().await?;
 
     let response = users
         .into_iter()
@@ -51,10 +51,10 @@ pub async fn get_users(
     )
 )]
 pub async fn get_user(
-    State(service): State<UserService>,
+    State(state): State<AppState>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<UserResponse>, AppError> {
-    let user = service.get_user(id).await?;
+    let user = state.user_service.get_user(id).await?;
 
     Ok(Json(UserResponse {
         id: user.id.to_string(),
@@ -76,14 +76,14 @@ pub async fn get_user(
     )
 )]
 pub async fn create_user(
-    State(service): State<UserService>,
+    State(state): State<AppState>,
     Json(payload): Json<CreateUserRequest>,
 ) -> Result<Json<UserResponse>, AppError> {
     if let Err(e) = payload.validate() {
         return Err(AppError::Validation(e.to_string()));
     }
 
-    let user = service.create_user(payload).await?;
+    let user = state.user_service.create_user(payload).await?;
 
     Ok(Json(UserResponse {
         id: user.id.to_string(),
@@ -108,7 +108,7 @@ pub async fn create_user(
     )
 )]
 pub async fn update_user(
-    State(service): State<UserService>,
+    State(state): State<AppState>,
     Path(id): Path<Uuid>,
     Json(payload): Json<UpdateUserRequest>,
 ) -> Result<Json<UserResponse>, AppError> {
@@ -116,7 +116,7 @@ pub async fn update_user(
         return Err(AppError::Validation(e.to_string()));
     }
 
-    let updated_user = service.update_user(id, payload).await?;
+    let updated_user = state.user_service.update_user(id, payload).await?;
 
     Ok(Json(UserResponse {
         id: updated_user.id.to_string(),
@@ -140,10 +140,10 @@ pub async fn update_user(
     )
 )]
 pub async fn delete_user(
-    State(service): State<UserService>,
+    State(state): State<AppState>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<serde_json::Value>, AppError> {
-    service.delete_user(id).await?;
+    state.user_service.delete_user(id).await?;
 
     Ok(Json(serde_json::json!({ "message": "User deleted" })))
 }
