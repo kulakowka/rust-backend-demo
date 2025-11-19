@@ -1,0 +1,263 @@
+# Rust Backend Demo
+
+A modern, production-ready REST API and GraphQL server built with Rust, featuring a clean architecture with Service/Repository pattern, comprehensive API documentation, and database integration.
+
+## 🚀 Features
+
+- **Dual API Support**: Both REST and GraphQL endpoints
+- **Clean Architecture**: Service/Repository pattern for maintainable code
+- **OpenAPI Documentation**: Interactive Swagger UI at `/swagger-ui`
+- **Database Integration**: PostgreSQL with SQLx and automatic migrations
+- **Type Safety**: Full Rust type safety with validation
+- **Error Handling**: Comprehensive error handling with custom error types
+- **Logging**: Structured logging with tracing
+- **Configuration**: Environment-based configuration with `.env` support
+
+## 📋 Tech Stack
+
+- **Framework**: [Axum](https://github.com/tokio-rs/axum) 0.8
+- **Database**: PostgreSQL with [SQLx](https://github.com/launchbadge/sqlx) 0.8
+- **GraphQL**: [async-graphql](https://github.com/async-graphql/async-graphql) 7.0
+- **API Docs**: [utoipa](https://github.com/juhaku/utoipa) 5.4 + Swagger UI
+- **Validation**: [validator](https://github.com/Keats/validator)
+- **Async Runtime**: [Tokio](https://tokio.rs)
+
+## 🏗️ Architecture
+
+```
+src/
+├── main.rs           # Application entry point
+├── config.rs         # Configuration management
+├── model.rs          # Domain models
+├── dto.rs            # Data Transfer Objects
+├── repository.rs     # Database layer (Repository pattern)
+├── service.rs        # Business logic layer
+├── handler.rs        # REST API handlers
+├── schema.rs         # GraphQL schema
+├── route.rs          # Route configuration
+└── error.rs          # Error types
+```
+
+## 🛠️ Prerequisites
+
+- Rust 1.70+ (edition 2024)
+- PostgreSQL 15+
+- Docker & Docker Compose (optional, for database)
+
+## 📦 Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/kulakowka/rust-backend-demo.git
+   cd rust-backend-demo
+   ```
+
+2. **Set up environment variables**
+   ```bash
+   cp .env.example .env
+   ```
+
+   Edit `.env` if needed:
+   ```env
+   DATABASE_URL=postgres://postgres:password@localhost:5432/hello_cargo
+   RUST_LOG=debug
+   SERVER_HOST=127.0.0.1
+   SERVER_PORT=3001
+   ```
+
+3. **Start PostgreSQL**
+   ```bash
+   docker-compose up -d
+   ```
+
+4. **Run the application**
+   ```bash
+   cargo run
+   ```
+
+   The server will start on `http://127.0.0.1:3001`
+
+## 📚 API Documentation
+
+### Swagger UI
+Visit `http://127.0.0.1:3001/swagger-ui` for interactive API documentation.
+
+### GraphQL Playground
+Visit `http://127.0.0.1:3001/graphql` for GraphQL playground.
+
+## 🔌 API Endpoints
+
+### REST API
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/users` | List all users |
+| GET | `/users/{id}` | Get user by ID |
+| POST | `/users` | Create a new user |
+| PUT | `/users/{id}` | Update user |
+| DELETE | `/users/{id}` | Delete user |
+
+### GraphQL API
+
+**Endpoint**: `POST /graphql`
+
+**Queries**:
+```graphql
+query {
+  users {
+    id
+    name
+    email
+    createdAt
+    updatedAt
+  }
+  
+  user(id: "uuid-here") {
+    id
+    name
+    email
+  }
+}
+```
+
+**Mutations**:
+```graphql
+mutation {
+  createUser(input: {
+    name: "John Doe"
+    email: "john@example.com"
+  }) {
+    id
+    name
+    email
+  }
+  
+  updateUser(id: "uuid-here", input: {
+    name: "Jane Doe"
+  }) {
+    id
+    name
+    email
+  }
+  
+  deleteUser(id: "uuid-here")
+}
+```
+
+## 🧪 Testing
+
+### Manual Testing Scripts
+
+**Test REST API**:
+```bash
+chmod +x test_api.sh
+./test_api.sh
+```
+
+**Test GraphQL API**:
+```bash
+chmod +x test_graphql.sh
+./test_graphql.sh
+```
+
+### Example cURL Commands
+
+**Create User**:
+```bash
+curl -X POST http://127.0.0.1:3001/users \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Alice", "email": "alice@example.com"}'
+```
+
+**Get All Users**:
+```bash
+curl http://127.0.0.1:3001/users
+```
+
+**Update User**:
+```bash
+curl -X PUT http://127.0.0.1:3001/users/{id} \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Alice Updated"}'
+```
+
+**Delete User**:
+```bash
+curl -X DELETE http://127.0.0.1:3001/users/{id}
+```
+
+## 🗄️ Database
+
+### Schema
+
+```sql
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+### Migrations
+
+Migrations are automatically applied on startup. Migration files are located in `migrations/`.
+
+To create a new migration:
+```bash
+sqlx migrate add <migration_name>
+```
+
+## 🔧 Development
+
+### Build
+```bash
+cargo build
+```
+
+### Run with hot reload (using cargo-watch)
+```bash
+cargo install cargo-watch
+cargo watch -x run
+```
+
+### Check code
+```bash
+cargo check
+```
+
+### Format code
+```bash
+cargo fmt
+```
+
+### Lint
+```bash
+cargo clippy
+```
+
+## 📝 Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `DATABASE_URL` | PostgreSQL connection string | `postgres://postgres:password@localhost:5432/hello_cargo` |
+| `RUST_LOG` | Log level (trace, debug, info, warn, error) | `debug` |
+| `SERVER_HOST` | Server host address | `127.0.0.1` |
+| `SERVER_PORT` | Server port | `3001` |
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is open source and available under the MIT License.
+
+## 🙏 Acknowledgments
+
+Built with amazing Rust ecosystem tools:
+- [Axum](https://github.com/tokio-rs/axum) - Web framework
+- [SQLx](https://github.com/launchbadge/sqlx) - Async SQL toolkit
+- [async-graphql](https://github.com/async-graphql/async-graphql) - GraphQL server
+- [utoipa](https://github.com/juhaku/utoipa) - OpenAPI documentation
