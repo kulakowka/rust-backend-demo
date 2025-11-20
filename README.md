@@ -27,24 +27,40 @@ A modern, production-ready REST API and GraphQL server built with Rust, featurin
 
 ## 🏗️ Architecture
 
+The project follows **Feature-Sliced Design (FSD)** principles to ensure scalability and maintainability.
+
 ```
 src/
-├── main.rs           # Application entry point
-├── config.rs         # Configuration management
-├── state.rs          # Application state
-├── model.rs          # Domain models
-├── dto.rs            # Data Transfer Objects
-├── repository.rs     # Database layer (Repository pattern)
-├── service.rs        # Business logic layer
-├── handler.rs        # REST API handlers
-├── ai_model.rs       # AI domain models
-├── ai_repository.rs  # AI client layer
-├── ai_service.rs     # AI business logic
-├── ai_handler.rs     # AI REST API handlers
-├── schema.rs         # GraphQL schema
-├── route.rs          # Route configuration
-└── error.rs          # Error types
+├── app/                    # Application layer
+│   ├── router.rs          # Route configuration
+│   └── state.rs           # App state
+├── features/              # Features layer (Functional modules)
+│   ├── user_management/   # User CRUD feature
+│   │   ├── api/           # API handlers (REST & GraphQL)
+│   │   ├── model/         # DTOs
+│   │   ├── domain/        # Business logic
+│   │   └── infrastructure/# Database access
+│   └── ai_integration/    # AI feature
+│       ├── api/           # AI endpoints
+│       ├── model/         # AI DTOs
+│       ├── domain/        # AI service logic
+│       └── infrastructure/# Gemini API client
+├── entities/              # Entities layer (Business models)
+│   ├── user/              # User entity
+│   └── ai/                # AI entities
+├── shared/                # Shared layer (Common code)
+│   ├── config/            # Configuration
+│   ├── error/             # Error handling
+│   └── database/          # Database connection
+└── main.rs                # Entry point
 ```
+
+### Layers Overview
+
+1.  **App**: Composes the application, handling routing and global state.
+2.  **Features**: Self-contained modules implementing specific business value (e.g., User Management, AI Integration). Each feature has its own API, Model, Domain, and Infrastructure.
+3.  **Entities**: Business entities and domain models used across features.
+4.  **Shared**: Common utilities, configuration, and infrastructure code shared across the application.
 
 ## 🛠️ Prerequisites
 
