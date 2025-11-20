@@ -1,22 +1,18 @@
-mod ai_handler;
-mod ai_model;
-mod ai_repository;
-mod ai_service;
-mod config;
-mod dto;
-mod error;
-mod handler;
-mod model;
-mod repository;
-mod route;
-mod schema;
-mod service;
-mod state;
+// Feature-Sliced Design Architecture
+mod shared;
+mod entities;
+mod features;
+mod app;
 
-use sqlx::postgres::PgPoolOptions;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
-use crate::config::Config;
+use crate::shared::config::Config;
+use crate::shared::database::create_pool;
+use crate::features::user_management::infrastructure::PostgresUserRepository;
+use crate::features::user_management::domain::UserService;
+use crate::features::ai_integration::infrastructure::GeminiRepository;
+use crate::features::ai_integration::domain::AIService;
+use crate::app::{AppState, create_router};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -27,36 +23,22 @@ async fn main() -> anyhow::Result<()> {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
-    tracing::info!("Connecting to database at {}", config.database_url);
-    let pool = PgPoolOptions::new()
-        .max_connections(5)
-        .connect(&config.database_url)
-        .await
-        .expect("Failed to connect to database");
+    // Create database pool and run migrations
+    let pool = create_pool(&config.database_url).await?;
 
-    use std::sync::Arc;
-    use crate::repository::PostgresUserRepository;
-    use crate::service::UserService;
-    use crate::ai_repository::GeminiRepository;
-    use crate::ai_service::AIService;
-    use crate::state::AppState;
+    // Initialize repositories
+    let user_repository = std::sync::Arc::new(PostgresUserRepository::new(pool));
+    let ai_repository = std::sync::Arc::new(GeminiRepository::new(config.gemini_api_key.clone()));
 
-    tracing::info!("Running migrations...");
-    sqlx::migrate!("./migrations")
-        .run(&pool)
-        .await
-        .expect("Failed to run migrations");
-
-    let user_repository = Arc::new(PostgresUserRepository::new(pool));
+    // Initialize services
     let user_service = UserService::new(user_repository);
-
-    tracing::info!("Initializing Gemini AI client...");
-    let ai_repository = Arc::new(GeminiRepository::new(config.gemini_api_key.clone()));
     let ai_service = AIService::new(ai_repository);
 
+    // Create app state and router
     let state = AppState::new(user_service, ai_service);
-    let app = route::create_router(state);
+    let app = create_router(state);
 
+    // Start server
     let addr_str = format!("{}:{}", config.server_host, config.server_port);
     let listener = tokio::net::TcpListener::bind(&addr_str).await?;
     tracing::info!("listening on {}", addr_str);
@@ -64,4 +46,3 @@ async fn main() -> anyhow::Result<()> {
 
     Ok(())
 }
-
