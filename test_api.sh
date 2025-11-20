@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BASE_URL="http://localhost:3001"
+BASE_URL="http://localhost:3005"
 
 echo "1. Creating a user..."
 CREATE_RES=$(curl -s -X POST $BASE_URL/users \

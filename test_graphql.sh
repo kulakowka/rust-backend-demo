@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BASE_URL="http://127.0.0.1:3001/graphql"
+BASE_URL="http://127.0.0.1:3005/graphql"
 
 echo "Testing GraphQL API at $BASE_URL"
 
